@@ -44,7 +44,12 @@ class User {
 
     constructor()
 
-    constructor(username: String, name: String, email: String, encode: String?)
+    constructor(username: String, name: String, email: String, password: String){
+        this.username = username
+        this.name = name
+        this.email = email
+        this.password = password
+    }
 
 
 }

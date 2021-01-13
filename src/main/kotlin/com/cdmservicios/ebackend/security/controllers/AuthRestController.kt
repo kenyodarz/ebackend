@@ -126,7 +126,7 @@ class AuthRestController {
         val errores: MutableMap<String, Any> = HashMap()
         result.fieldErrors.forEach { err ->
             run {
-                errores.put(err.field, " El Campo " + err.field + " " + err.defaultMessage)
+                errores[err.field] = " El Campo " + err.field + " " + err.defaultMessage
             }
         }
         return ResponseEntity.badRequest().body(errores)
