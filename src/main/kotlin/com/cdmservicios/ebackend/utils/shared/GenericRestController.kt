@@ -85,7 +85,7 @@ abstract class GenericRestController<T, ID : Serializable>(val serviceAPI: Gener
         )]
     )
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    fun save(@RequestBody entity: @Valid T, result: BindingResult): ResponseEntity<*> {
+    fun save(@RequestBody @Valid entity: T, result: BindingResult): ResponseEntity<*> {
         return if (result.hasErrors()) {
             validar(result)
         } else ResponseEntity.status(HttpStatus.OK).body(serviceAPI.save(entity))
