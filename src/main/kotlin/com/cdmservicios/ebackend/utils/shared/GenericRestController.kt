@@ -8,26 +8,15 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
+import org.springframework.web.bind.annotation.*
 import java.io.Serializable
+import java.util.*
 import java.util.function.Consumer
 import javax.validation.Valid
-import org.springframework.web.bind.annotation.PathVariable
-
-import org.springframework.web.bind.annotation.GetMapping
-
-import org.springframework.web.bind.annotation.RequestBody
-
-import org.springframework.web.bind.annotation.PostMapping
-
-import java.util.HashMap
-
-import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
 abstract class GenericRestController<T, ID : Serializable>(val serviceAPI: GenericServiceAPI<T, ID>) {
-
-
 
 
     fun validar(result: BindingResult): ResponseEntity<*> {
@@ -103,13 +92,9 @@ abstract class GenericRestController<T, ID : Serializable>(val serviceAPI: Gener
         )]
     )
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    fun delete(@PathVariable id: ID): ResponseEntity<*> {
-        val entity: T = serviceAPI.getOne(id)!!
-        if (entity != null) {
-            serviceAPI.delete(id)
-        } else {
-            return ResponseEntity<Any>(HttpStatus.NOT_FOUND)
-        }
-        return ResponseEntity<T>(entity, HttpStatus.OK)
+    fun delete(@PathVariable id: ID): ResponseEntity<Any> {
+        checkNotNull(serviceAPI.getOne(id)!!) { return ResponseEntity<Any>(HttpStatus.NOT_FOUND) }
+        serviceAPI.delete(id)
+        return ResponseEntity.ok().body(null)
     }
 }
