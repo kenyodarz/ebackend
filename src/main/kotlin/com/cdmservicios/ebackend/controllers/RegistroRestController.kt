@@ -1,8 +1,6 @@
 package com.cdmservicios.ebackend.controllers
 
 import com.cdmservicios.ebackend.core.CalculoHoras
-import com.cdmservicios.ebackend.models.Persona
-import com.cdmservicios.ebackend.models.Proyecto
 import com.cdmservicios.ebackend.models.Registro
 import com.cdmservicios.ebackend.services.apis.PersonaServiceAPI
 import com.cdmservicios.ebackend.services.apis.ProyectoServiceAPI
@@ -32,19 +30,19 @@ class RegistroRestController(serviceAPI: RegistroServiceAPI) : GenericRestContro
     override fun save(entity: Registro, result: BindingResult): ResponseEntity<*> {
         val calculoHoras = CalculoHoras()
         calculoHoras.calcularHoras(entity.horaEntrada!!, entity.horaSalida!!, entity.festivo)
-        entity.horaOrdinaria = calculoHoras.horasOrdinarias
-        entity.recargoNocturno = calculoHoras.recargosNocturnos
-        entity.horaExtra = calculoHoras.horasExtrasOrdinarias
-        entity.horaExtraNocturna = calculoHoras.horasExtrasNocturnas
-        entity.horaExtraFestiva = calculoHoras.horasExtrasOrdinariasFestivas
-        entity.horaExtraFestivaNocturna = calculoHoras.horasExtrasNocturnasFestivas
-        val persona: Persona = personaServiceAPI!!.getOne(entity.persona!!.cedula!!)
-        entity.persona = persona
-        calculoHoras.calcularSueldo(persona.salario!!)
-        entity.salarioSinPrestaciones = calculoHoras.salarioSinPrestaciones
-        entity.salarioConPrestaciones = calculoHoras.salarioConPrestaciones
-        val proyecto: Proyecto = proyectoServiceAPI!!.getOne(entity.proyecto!!.idProyecto!!)
-        entity.proyecto = proyecto
+        with(entity) {
+            horaOrdinaria = calculoHoras.horasOrdinarias
+            recargoNocturno = calculoHoras.recargosNocturnos
+            horaExtra = calculoHoras.horasExtrasOrdinarias
+            horaExtraNocturna = calculoHoras.horasExtrasNocturnas
+            horaExtraFestiva = calculoHoras.horasExtrasOrdinariasFestivas
+            horaExtraFestivaNocturna = calculoHoras.horasExtrasNocturnasFestivas
+            persona = personaServiceAPI!!.getOne(entity.persona!!.cedula!!)
+            calculoHoras.calcularSueldo(persona!!.salario!!)
+            salarioSinPrestaciones = calculoHoras.salarioSinPrestaciones
+            salarioConPrestaciones = calculoHoras.salarioConPrestaciones
+            proyecto = proyectoServiceAPI!!.getOne(entity.proyecto!!.idProyecto!!)
+        }
         return super.save(entity, result)
     }
 
@@ -59,19 +57,19 @@ class RegistroRestController(serviceAPI: RegistroServiceAPI) : GenericRestContro
             registro.festivo,
             primerRegistro
         )
-        registro.horaOrdinaria = calculoHoras.horasOrdinarias
-        registro.recargoNocturno = calculoHoras.recargosNocturnos
-        registro.horaExtra = calculoHoras.horasExtrasOrdinarias
-        registro.horaExtraNocturna = calculoHoras.horasExtrasNocturnas
-        registro.horaExtraFestiva = calculoHoras.horasExtrasOrdinariasFestivas
-        registro.horaExtraFestivaNocturna = calculoHoras.horasExtrasNocturnasFestivas
-        val persona: Persona = personaServiceAPI!!.getOne(registro.persona!!.cedula!!)
-        registro.persona = persona
-        calculoHoras.calcularSueldo(persona.salario!!)
-        registro.salarioSinPrestaciones = calculoHoras.salarioSinPrestaciones
-        registro.salarioConPrestaciones = calculoHoras.salarioConPrestaciones
-        val proyecto: Proyecto = proyectoServiceAPI!!.getOne(registro.proyecto!!.idProyecto!!)
-        registro.proyecto = proyecto
+        with(receiver = registro) {
+            calculoHoras.horasOrdinarias.also { horaOrdinaria = it }
+            calculoHoras.recargosNocturnos.also { recargoNocturno = it }
+            calculoHoras.horasExtrasOrdinarias.also { horaExtra = it }
+            calculoHoras.horasExtrasNocturnas.also { horaExtraNocturna = it }
+            calculoHoras.horasExtrasOrdinariasFestivas.also { horaExtraFestiva = it }
+            calculoHoras.horasExtrasNocturnasFestivas.also { horaExtraFestivaNocturna = it }
+            personaServiceAPI!!.getOne(registro.persona!!.cedula!!).also { persona = it }
+            calculoHoras.calcularSueldo(persona!!.salario!!)
+            calculoHoras.salarioSinPrestaciones.also { salarioSinPrestaciones = it }
+            calculoHoras.salarioConPrestaciones.also { salarioConPrestaciones = it }
+            proyectoServiceAPI!!.getOne(registro.proyecto!!.idProyecto!!).also { proyecto = it }
+        }
         val obj: Registro = serviceAPI.save(registro)
         return ResponseEntity(obj, HttpStatus.OK)
     }
