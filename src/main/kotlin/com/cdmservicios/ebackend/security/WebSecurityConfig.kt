@@ -17,9 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.config.annotation.web.builders.WebSecurity
-
-
-
+import org.springframework.security.core.userdetails.UserDetailsService
 
 
 @Configuration
@@ -52,22 +50,24 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(authenticationManagerBuilder: AuthenticationManagerBuilder) {
         authenticationManagerBuilder
-                .userDetailsService<UserDetailsServiceImpl>(userDetailsService)
-                .passwordEncoder(passwordEncoder())
+            .userDetailsService<UserDetailsService>(userDetailsService)
+            .passwordEncoder(passwordEncoder())
     }
+
 
     override fun configure(http: HttpSecurity) {
         http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandle).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/test/**").permitAll()
-                .antMatchers("/swagger-ui.html/**").permitAll()
-                .antMatchers("/configuration/**").permitAll()
-                .antMatchers("/swagger-resources/**").permitAll()
-                .antMatchers("/v2/api-docs").permitAll()
-                .anyRequest().authenticated()
+            .exceptionHandling().authenticationEntryPoint(unauthorizedHandle).and()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+            .authorizeRequests()
+            .antMatchers("/api/auth/**").permitAll()
+            .antMatchers("/api/test/**").permitAll()
+            .antMatchers("/v2/api-docs").permitAll()
+            .antMatchers("/configuration/ui").permitAll()
+            .antMatchers("/configuration/**").permitAll()
+            .antMatchers("/swagger-resources/**").permitAll()
+            .antMatchers("/swagger-ui.html/**").permitAll()
+            .anyRequest().authenticated().and().httpBasic()
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)
     }
 }
